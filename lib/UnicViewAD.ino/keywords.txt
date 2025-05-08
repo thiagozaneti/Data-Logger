@@ -1,0 +1,110 @@
+#######################################
+# Syntax Coloring Map For QueueList
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+QueueList	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+push	KEYWORD2
+pop	KEYWORD2
+peek	KEYWORD2
+isEmpty	KEYWORD2
+count	KEYWORD2
+setPrinter      KEYWORD2
+
+#######################################
+# Syntax Coloring Map For unicViewAD
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+rtc_datetime_t	KEYWORD1
+LCM	KEYWORD1
+NamedVP	KEYWORD1
+LcmVar  KEYWORD1
+LcmString KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+writeVP	KEYWORD2
+writeRegister	KEYWORD2
+changeBacklight	KEYWORD2
+beepBuzzer	KEYWORD2
+changePicId	KEYWORD2
+rtcWriteYear	KEYWORD2
+rtcWriteMonth	KEYWORD2
+rtcWriteDay	KEYWORD2
+rtcWriteHour	KEYWORD2
+rtcWriteMinute	KEYWORD2
+rtcWriteSecond	KEYWORD2
+rtcWriteDate	KEYWORD2
+rtcWriteClock	KEYWORD2
+writeTrendCurve0	KEYWORD2
+writeTrendCurve1	KEYWORD2
+writeTrendCurve2	KEYWORD2
+writeTrendCurve3	KEYWORD2
+writeTrendCurve4	KEYWORD2
+writeTrendCurve5	KEYWORD2
+writeTrendCurve6	KEYWORD2
+writeTrendCurve7	KEYWORD2
+clearTrendCurve0	KEYWORD2
+clearTrendCurve1	KEYWORD2
+clearTrendCurve2	KEYWORD2
+clearTrendCurve3	KEYWORD2
+clearTrendCurve4	KEYWORD2
+clearTrendCurve5	KEYWORD2
+clearTrendCurve6	KEYWORD2
+clearTrendCurve7	KEYWORD2
+activateSoftwareControl	KEYWORD2
+readVP	KEYWORD2
+requestVP	KEYWORD2
+readRegister	KEYWORD2
+rtcReadYear	KEYWORD2
+rtcReadMonth	KEYWORD2
+rtcReadDay	KEYWORD2
+rtcReadWeek	KEYWORD2
+rtcReadHour	KEYWORD2
+rtcReadMinute	KEYWORD2
+rtcReadSecond	KEYWORD2
+readFirmwareVersion	KEYWORD2
+readPicID	KEYWORD2
+readAudioStatus	KEYWORD2
+readVideoStatus	KEYWORD2
+readKeyboardStatus	KEYWORD2
+playAudio	KEYWORD2
+stopAudio	KEYWORD2
+writeVideoSettings	KEYWORD2
+playPauseVideo	KEYWORD2
+stopVideo	KEYWORD2
+nextVideo	KEYWORD2
+previousVideo	KEYWORD2
+calibrate	KEYWORD2
+resetLCM	KEYWORD2
+available	KEYWORD2
+getRxAddress	KEYWORD2
+getRxLength	KEYWORD2
+getRxType	KEYWORD2
+getCurrentRxBufferIndex	KEYWORD2
+setRxLength	KEYWORD2
+getData	KEYWORD2
+getChar	KEYWORD2
+peekQueueData	KEYWORD2
+waitResponse	KEYWORD2
+runGarbageCollector	KEYWORD2
+write	KEYWORD2
+available	KEYWORD2
+getData	KEYWORD2
+read	KEYWORD2
+request	KEYWORD2
