@@ -6,35 +6,56 @@ void indexPage(){
     server.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
 
         if (req->hasParam("log")) {
-          valueFiltroLog = req->getParam("log")->value().toInt();
+            valueFiltroLog = req->getParam("log")->value().toInt();
         } else {
-          valueFiltroLog = -1;
+            valueFiltroLog = -1;
         }
-    
-        String html = "<!DOCTYPE html><html><head><<meta http-equiv='refresh' content='5'><title>Logger RADCOM</title>"
+
+        String html = "<!DOCTYPE html><html><head><meta http-equiv='refresh' content='5'><title>Logger RADCOM</title>"
                       "<style>body{font-family:sans-serif;padding:10px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #444;padding:5px;}</style>"
                       "</head><body>"
                       "<h2>Log de Mensagens LoRa</h2>"
                       "<p><a href=\"/settime\">Configurar Data/Hora</a></p>"
-                      "<p><a href =\"/filtrar\">Filtrar Logs</p>";
-    
+                      "<p><a href=\"/filtrar\">Filtrar Logs</a></p>";
+
         String now = nowISO();
         html += "<p>Hora atual: " + (now != "" ? now : "não configurada") + "</p>";
-    
-        html += "<table><tr><th>Horário</th><th>Mensagem (hex)</th></tr>";
+
+        html += "<table><tr><th>Horário</th><th>Mensagem (hex)</th><th>Status</th></tr>";
+
+        String lastTimestamp = "";
+
         for (size_t i = 0; i < logCount; i++) {
-          html += "<tr><td>" + logs[i].timestamp + "</td><td>" + logs[i].message + "</td></tr>";
+            String msg = logs[i].message;
+            int filtro = msg.substring(0, 2).toInt();
+
+            if (valueFiltroLog != -1 && filtro != valueFiltroLog) continue;
+
+            String status = "-";
+            if (lastTimestamp != "") {
+                int intervalo = tempoEntre(lastTimestamp, logs[i].timestamp);
+                if (intervalo < 30){
+                    status = "Mandando Informação";
+                } 
+                else{
+                    status = "dormiu";
+                }
+            }
+            lastTimestamp = logs[i].timestamp;
+
+            html += "<tr><td>" + logs[i].timestamp + "</td><td>" + logs[i].message + "</td><td>" + status + "</td></tr>";
         }
+
         html += "</table></body></html>";
-    
-      });
-    
+        req->send(200, "text/html", html);
+    });
 }
+
 
 
 void filtrarPage(){
     server.on("/filtrar", HTTP_GET, [](AsyncWebServerRequest* req) {
-        String html = "<!DOCTYPE html><html><head><http-equiv='refresh' content='5'><title>LoRa Logger</title>"
+        String html = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>LoRa Logger</title>"
                       "<style>body{font-family:sans-serif;padding:10px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #444;padding:5px;}</style>"
                       "</head><body>"
                       "<h2>Filtrar por logs</h2>"

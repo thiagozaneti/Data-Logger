@@ -45,7 +45,15 @@ extern AsyncWebServer server;
 // ———— Variável de filtro de log ————
 extern int valueFiltroLog;
 
+//------- Variável de calculo de timestamp antigo
+extern int timestampAnterior;
+
 // ————— DRIVER LoRa E220 —————
 extern LoRa_E220 e220ttl;
+
+//______ Variável para salvar bytes de mensagem ________//
+uint16_t byte3e4;
+uint32_t byte5a8;
+uint32_t byte9a12;
 
 #endif
