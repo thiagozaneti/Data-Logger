@@ -28,23 +28,38 @@ int tempoEntre(const String& t1, const String& t2) {
     return difftime(mktime(&tm2), mktime(&tm1));
 }
 
-//função feita para calcular a posição correta do gps
-void calcPosicaoGps(){
-    if (byte5a8 && byte9a12)
-    {
-        
-    }
-    
-}
 
-//função feita para calcular qual o status do canhão a partir de suas informações
-void calcSituacaoCanhao(){
+//função feita para calcular a posição correta do gps
+// void calcPosicaoGps(){
+//     if (byte5a8 && byte9a12)
+//     {
+//         int64_t locationLat = (byte5a8*1000000)*-1;
+//         int64_t locationLong = (byte9a12*1000000)*-1;
+//         return;
+//     }
     
-}
+// }
+
+// //função feita para calcular qual o status do canhão a partir de suas informações
+// void calcSituacaoCanhao(){
+//     int 
+// }
   
-  
+
+//função que monitora o pino 35 do wifi, se receber sinal high é sinal que o canhão está acordado
+
 // ————— ADICIONA UMA LINHA AO LOG —————
 void addLog(const String& msg) {
+    // acordado = (digitalRead(in_wifi) == HIGH);
+    // Serial.print("verificação de canhão");
+    // Serial.println(in_wifi);
+
+
+    if (digitalRead(in_wifi) == HIGH){
+        Serial.println("Pino ativo");
+      }else{
+        Serial.println("Pino desativado");
+    }
     // Só processa pacotes que comecem com "41" - canhão
     if (msg.startsWith("41")) {
         Serial.println("Recebido buffer HEX:");
@@ -87,17 +102,36 @@ void addLog(const String& msg) {
 
         Serial.print("Byte 9 a 12 (decimal): ");
         Serial.println(byte9a12);
+
+        Serial.print("status  ");
+        Serial.println(acordado);
         Serial.println("-------------------------------------");
     }
     String primeirosCaracteres = msg.substring(0, 2);
     int primeiroByte = primeirosCaracteres.toInt();
     if (valueFiltroLog != -1 && valueFiltroLog != primeiroByte) return;
 
-    if (logCount < MAX_LOGS) {
-        logs[logCount++] = { nowISO(), msg };
-    } else {
-        for (size_t i = 1; i < MAX_LOGS; i++) logs[i - 1] = logs[i];
-        logs[MAX_LOGS - 1] = { nowISO(), msg };
-    }
+    //verificarSeEstaAcordado
+    if (digitalRead(in_wifi) == HIGH) {
+        acordado = true;
+        String status = "acordado";
+        if(logCount < MAX_LOGS){
+            logs[logCount++] = {nowISO(), msg, status};
+        }else {
+            for (size_t i = 1; i < MAX_LOGS; i++) logs[i - 1] = logs[i];
+            logs[MAX_LOGS - 1] = { nowISO(), msg };
+        }
+    }else{
+        acordado = false;
+        String status = "dormindo";
+        if(logCount < MAX_LOGS){
+            logs[logCount++] = {nowISO(), "Sem informação", status};
+        }else {
+            for (size_t i = 1; i < MAX_LOGS; i++) logs[i - 1] = logs[i];
+            logs[MAX_LOGS - 1] = { nowISO(), msg };
+        }
 
+    }
 }
+
+

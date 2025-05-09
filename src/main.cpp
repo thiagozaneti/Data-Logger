@@ -15,6 +15,8 @@ void setup() {
   pinMode(led_Tx, OUTPUT);
   pinMode(led_Rx, OUTPUT);
 
+  pinMode(in_wifi, INPUT);
+
   // liga fisicamente o rádio
   pinMode(on_Lora, OUTPUT);
   digitalWrite(on_Lora, HIGH);
@@ -40,6 +42,7 @@ void setup() {
   settimePage();
 
   server.begin();
+  Serial.println("Logger ativo");
 }
 
 // ————— LOOP PRINCIPAL —————

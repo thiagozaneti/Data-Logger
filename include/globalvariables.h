@@ -17,6 +17,7 @@
 #define pin_M1_Lora 26
 #define pin_AUX_Lora 27
 #define on_Lora 33
+#define in_wifi 35
 
 // ————— BUFFER DE RECEBIMENTO —————
 #define MAX_BUFFER_SIZE 128
@@ -26,7 +27,7 @@ extern size_t dataLength;
 // ————— LOG EM MEMÓRIA —————
 const size_t MAX_LOGS = 100;
 struct LogEntry {
-  String timestamp, message;
+  String timestamp, message, status;
 };
 extern LogEntry logs[MAX_LOGS];
 extern size_t logCount;
@@ -52,8 +53,10 @@ extern int timestampAnterior;
 extern LoRa_E220 e220ttl;
 
 //______ Variável para salvar bytes de mensagem ________//
-uint16_t byte3e4;
-uint32_t byte5a8;
-uint32_t byte9a12;
+extern uint16_t byte3e4;
+extern uint32_t byte5a8;
+extern uint32_t byte9a12;
+
+extern bool acordado;
 
 #endif

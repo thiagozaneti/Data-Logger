@@ -1,5 +1,6 @@
 #include "globalvariables.h"
 
+
 uint8_t buffer[MAX_BUFFER_SIZE];
 size_t dataLength = 0;
 
@@ -34,3 +35,5 @@ uint16_t byte3e4 = 0;
 uint32_t byte5a8 = 0;
 uint32_t byte9a12 = 0;
 
+
+bool acordado = false;
