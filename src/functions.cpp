@@ -1,5 +1,9 @@
 #include "globalvariables.h"
 #include <functions.h>
+// #include "jsonFunctions.h"
+// #include <jsonFunctions.h>
+#include <jsonFunctions.h>
+#include "jsonFunctions.h"
 
  
 String nowISO() {
@@ -50,11 +54,6 @@ int tempoEntre(const String& t1, const String& t2) {
 
 // ————— ADICIONA UMA LINHA AO LOG —————
 void addLog(const String& msg) {
-    // acordado = (digitalRead(in_wifi) == HIGH);
-    // Serial.print("verificação de canhão");
-    // Serial.println(in_wifi);
-
-
     if (digitalRead(in_wifi) == HIGH){
         Serial.println("Pino ativo");
       }else{
@@ -106,32 +105,37 @@ void addLog(const String& msg) {
         Serial.print("status  ");
         Serial.println(acordado);
         Serial.println("-------------------------------------");
-    }
-    String primeirosCaracteres = msg.substring(0, 2);
-    int primeiroByte = primeirosCaracteres.toInt();
-    if (valueFiltroLog != -1 && valueFiltroLog != primeiroByte) return;
 
-    //verificarSeEstaAcordado
-    if (digitalRead(in_wifi) == HIGH) {
-        acordado = true;
-        String status = "acordado";
-        if(logCount < MAX_LOGS){
-            logs[logCount++] = {nowISO(), msg, status};
-        }else {
-            for (size_t i = 1; i < MAX_LOGS; i++) logs[i - 1] = logs[i];
-            logs[MAX_LOGS - 1] = { nowISO(), msg };
-        }
-    }else{
-        acordado = false;
-        String status = "dormindo";
-        if(logCount < MAX_LOGS){
-            logs[logCount++] = {nowISO(), "Sem informação", status};
-        }else {
-            for (size_t i = 1; i < MAX_LOGS; i++) logs[i - 1] = logs[i];
-            logs[MAX_LOGS - 1] = { nowISO(), msg };
+            //verificarSeEstaAcordado
+        if (digitalRead(in_wifi) == HIGH) {
+            acordado = true;
+            String status = "acordado";
+            if(logCount < MAX_LOGS){
+                logs[logCount++] = {nowISO(), msg, status};
+
+            }else {
+                for (size_t i = 1; i < MAX_LOGS; i++) logs[i - 1] = logs[i];
+                logs[MAX_LOGS - 1] = { nowISO(), msg };
+            }
+        }else{
+            acordado = false;
+            String status = "dormindo";
+            if(logCount < MAX_LOGS){
+                logs[logCount++] = {nowISO(), "Sem informação", status};
+            }else {
+                for (size_t i = 1; i < MAX_LOGS; i++) logs[i - 1] = logs[i];
+                logs[MAX_LOGS - 1] = { nowISO(), msg };
+            }
+
         }
 
-    }
+        adicionaInformacaoArquivoJson(logs[logCount++]);
+        Serial.println("Adicionado no arquivo json");
+        }
+        // String primeirosCaracteres = msg.substring(0, 2);
+    // int primeiroByte = primeirosCaracteres.toInt();
+    // if (valueFiltroLog != -1 && valueFiltroLog != primeiroByte) return;
+
 }
 
 

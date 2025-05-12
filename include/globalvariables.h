@@ -6,6 +6,8 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <LoRa_E220.h>
+#include <SPIFFS.h>
+#include <ArduinoJson.h>
 
 // ————— DEFINIÇÕES DE PINOS —————
 #define led_Status 17

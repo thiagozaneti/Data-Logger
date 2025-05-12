@@ -1,29 +1,51 @@
 #include <pages.h>
 #include <functions.h>
+#include <globalvariables.h>
 
 
-void indexPage(){
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
+void indexPage() {
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
     String html = "<!DOCTYPE html><html><head><meta http-equiv='refresh' content='5'><title>LoRa Logger</title>"
                   "<style>body{font-family:sans-serif;padding:10px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #444;padding:5px;}</style>"
                   "</head><body>"
                   "<h2>Log de Mensagens LoRa</h2>"
                   "<p><a href=\"/settime\">Configurar Data/Hora</a></p>"
-                  "<p><a href =\"/filtrar\">Filtrar Logs</p>";
+                  "<p><a href=\"/filtrar\">Filtrar Logs</a></p>";
 
     String now = nowISO();
     html += "<p>Hora atual: " + (now != "" ? now : "não configurada") + "</p>";
 
     html += "<table><tr><th>Horário</th><th>Mensagem (hex)</th><th>Status</th></tr>";
-    for (size_t i = 0; i < logCount; i++) {
-      html += "<tr><td>" + logs[i].timestamp + "</td><td>" + logs[i].message + "</td><td>" + logs[i].status + "</td></tr>";
-    }
-    html += "</table></body></html>";
 
+    File file = SPIFFS.open("/data/logs.json", FILE_READ);
+    if (!file) {
+      html += "<tr><td colspan='3'>Erro ao abrir logs.json</td></tr>";
+    } else {
+      JsonDocument doc;
+      DeserializationError error = deserializeJson(doc, file);
+      file.close();
+
+      if (error) {
+        html += "<tr><td colspan='3'>Erro ao ler JSON: ";
+        html += error.c_str();
+        html += "</td></tr>";
+      } else {
+        JsonArray arr = doc.as<JsonArray>();
+        for (JsonObject obj : arr) {
+          String horario = obj["horario"] | "N/A";
+          String mensagem = obj["mensagem"] | "N/A";
+          String status = obj["status"] | "N/A";
+          html += "<tr><td>" + horario + "</td><td>" + mensagem + "</td><td>" + status + "</td></tr>";
+        }
+      }
+    }
+
+    html += "</table></body></html>";
 
     req->send(200, "text/html", html);
   });
 }
+
 
 
 

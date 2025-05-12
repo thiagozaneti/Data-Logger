@@ -8,7 +8,8 @@ void setup() {
   while (!Serial) {}
 
   //servir páginas estáticas futuras)
-  // SPIFFS.begin(true);
+  SPIFFS.begin(true);
+  Serial.println("Spiffs ativo...");
 
   // configura LEDs
   pinMode(led_Status, OUTPUT);
