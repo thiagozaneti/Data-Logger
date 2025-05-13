@@ -53,7 +53,10 @@ int tempoEntre(const String& t1, const String& t2) {
 //função que monitora o pino 35 do wifi, se receber sinal high é sinal que o canhão está acordado
 
 // ————— ADICIONA UMA LINHA AO LOG —————
+// Função modificada addLog
 void addLog(const String& msg) {
+    
+    Serial.println("Adicionado no arquivo json");
     if (digitalRead(in_wifi) == HIGH){
         Serial.println("Pino ativo");
       }else{
@@ -105,37 +108,39 @@ void addLog(const String& msg) {
         Serial.print("status  ");
         Serial.println(acordado);
         Serial.println("-------------------------------------");
+    }
+    if (msg.startsWith("42")){
+        adicionaInformacaoArquivoJson(nowISO(), msg, "Comunicacao a mais");
+    }
+    if(msg.startsWith("45")){
+        adicionaInformacaoArquivoJson(nowISO(), msg, "Comunicacao a mais");
+    }
+    
 
-            //verificarSeEstaAcordado
-        if (digitalRead(in_wifi) == HIGH) {
-            acordado = true;
-            String status = "acordado";
-            if(logCount < MAX_LOGS){
-                logs[logCount++] = {nowISO(), msg, status};
-
-            }else {
-                for (size_t i = 1; i < MAX_LOGS; i++) logs[i - 1] = logs[i];
-                logs[MAX_LOGS - 1] = { nowISO(), msg };
-            }
-        }else{
-            acordado = false;
-            String status = "dormindo";
-            if(logCount < MAX_LOGS){
-                logs[logCount++] = {nowISO(), "Sem informação", status};
-            }else {
-                for (size_t i = 1; i < MAX_LOGS; i++) logs[i - 1] = logs[i];
-                logs[MAX_LOGS - 1] = { nowISO(), msg };
-            }
-
-        }
-
-        adicionaInformacaoArquivoJson(logs[logCount++]);
-        Serial.println("Adicionado no arquivo json");
-        }
-        // String primeirosCaracteres = msg.substring(0, 2);
-    // int primeiroByte = primeirosCaracteres.toInt();
-    // if (valueFiltroLog != -1 && valueFiltroLog != primeiroByte) return;
-
+    // Verifica o status e adiciona ao log
+    String status;
+    if (digitalRead(in_wifi) == HIGH) {
+        acordado = true;
+        status = "acordado";
+        adicionaInformacaoArquivoJson(nowISO(), msg, status);
+    } else {
+        acordado = false;
+        status = "canhão dormindo";
+        adicionaInformacaoArquivoJson(nowISO(), "Sem informacao", status);
+    }
+    // Lê o arquivo para verificação - log
+    lerArquivoJson();
 }
 
 
+//reserva
+// // // Adiciona ao array de logs em memória
+    // if (logCount < MAX_LOGS) {
+    //     logs[logCount++] = {nowISO(), msg, status};
+    // } else {
+    //     // Shift logs para manter apenas os mais recentes
+    //     for (size_t i = 1; i < MAX_LOGS; i++) {
+    //         logs[i - 1] = logs[i];
+    //     }
+    //     logs[MAX_LOGS - 1] = {nowISO(), msg, status};
+    // }

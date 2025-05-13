@@ -5,5 +5,7 @@
 void indexPage();
 void filtrarPage();
 void settimePage();
+void clearAllLogs();
+void clearLogsPage();
 
 #endif

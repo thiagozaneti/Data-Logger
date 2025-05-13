@@ -3,14 +3,59 @@
 #include "functions.h"
 #include "pages.h"
 
+
+void initializeJsonFile() {
+  if (!SPIFFS.exists("/logs.json")) {
+    File f = SPIFFS.open("/logs.json", FILE_WRITE);
+    if (f) {
+      f.print("[]");  // cria JSON como array vazio
+      f.close();
+      Serial.println("Arquivo JSON criado como array vazio.");
+    } else {
+      Serial.println("ERRO: Falha ao criar arquivo JSON.");
+    }
+  } else {
+    // Verifica se o arquivo existente é válido
+    File f = SPIFFS.open("/logs.json", FILE_READ);
+    if (f) {
+      // Se o arquivo estiver vazio, inicializa como array
+      if (f.size() == 0) {
+        f.close();
+        f = SPIFFS.open("/logs.json", FILE_WRITE);
+        if (f) {
+          f.print("[]");
+          Serial.println("Arquivo JSON existente estava vazio. Inicializado como array.");
+        }
+      } else {
+        // Tenta ler o JSON para verificar se é válido
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, f);
+        if (error) {
+          Serial.println("ERRO: Arquivo JSON existente inválido. Recriando...");
+          f.close();
+          f = SPIFFS.open("/logs.json", FILE_WRITE);
+          if (f) {
+            f.print("[]");
+            Serial.println("Arquivo JSON recriado como array vazio.");
+          }
+        } else {
+          Serial.println("Arquivo JSON existente é válido.");
+        }
+      }
+      f.close();
+    }
+  }
+}
+
 void setup() {
   Serial.begin(115200);
-  while (!Serial) {}
-
   //servir páginas estáticas futuras)
   SPIFFS.begin(true);
   Serial.println("Spiffs ativo...");
+  initializeJsonFile();
 
+
+  
   // configura LEDs
   pinMode(led_Status, OUTPUT);
   pinMode(led_Tx, OUTPUT);
@@ -41,6 +86,7 @@ void setup() {
   indexPage();
   filtrarPage();
   settimePage();
+  clearLogsPage();
 
   server.begin();
   Serial.println("Logger ativo");

@@ -3,6 +3,5 @@
 #include <globalvariables.h>
 
 void lerArquivoJson();
-void adicionaInformacaoArquivoJson( const LogEntry& addLogInVetor );
-
+void adicionaInformacaoArquivoJson(const String& timestamp, const String& message, const String& status);
 #endif

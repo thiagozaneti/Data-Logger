@@ -3,39 +3,71 @@
 #include <globalvariables.h>
 
 
+// Função modificada indexPage
+// Função modificada indexPage com o link para limpar logs
 void indexPage() {
   server.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
     String html = "<!DOCTYPE html><html><head><meta http-equiv='refresh' content='5'><title>LoRa Logger</title>"
-                  "<style>body{font-family:sans-serif;padding:10px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #444;padding:5px;}</style>"
+                  "<style>body{font-family:sans-serif;padding:10px;} "
+                  "table{width:100%;border-collapse:collapse;} "
+                  "th,td{border:1px solid #444;padding:5px;}"
+                  ".menu{display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;}"
+                  ".menu a{text-decoration:none;padding:5px 10px;background:#f0f0f0;border-radius:3px;color:#333;}"
+                  ".menu a:hover{background:#e0e0e0;}"
+                  ".danger{background:#ffdddd !important;color:#cc0000 !important;}"
+                  ".danger:hover{background:#ffcccc !important;}"
+                  "</style>"
                   "</head><body>"
                   "<h2>Log de Mensagens LoRa</h2>"
-                  "<p><a href=\"/settime\">Configurar Data/Hora</a></p>"
-                  "<p><a href=\"/filtrar\">Filtrar Logs</a></p>";
+                  "<div class='menu'>"
+                  "<a href=\"/settime\">Configurar Data/Hora</a>"
+                  "<a href=\"/filtrar\">Filtrar Logs</a>"
+                  "<a href=\"/clear\" class='danger'>Limpar Logs</a>"
+                  "</div>";
 
     String now = nowISO();
     html += "<p>Hora atual: " + (now != "" ? now : "não configurada") + "</p>";
 
     html += "<table><tr><th>Horário</th><th>Mensagem (hex)</th><th>Status</th></tr>";
 
-    File file = SPIFFS.open("/data/logs.json", FILE_READ);
+    File file = SPIFFS.open("/logs.json", FILE_READ);
     if (!file) {
       html += "<tr><td colspan='3'>Erro ao abrir logs.json</td></tr>";
     } else {
-      JsonDocument doc;
-      DeserializationError error = deserializeJson(doc, file);
-      file.close();
-
-      if (error) {
-        html += "<tr><td colspan='3'>Erro ao ler JSON: ";
-        html += error.c_str();
-        html += "</td></tr>";
+      // Verifica se o arquivo está vazio
+      if (file.size() == 0) {
+        html += "<tr><td colspan='3'>Arquivo logs.json está vazio</td></tr>";
+        file.close();
       } else {
-        JsonArray arr = doc.as<JsonArray>();
-        for (JsonObject obj : arr) {
-          String horario = obj["horario"] | "N/A";
-          String mensagem = obj["mensagem"] | "N/A";
-          String status = obj["status"] | "N/A";
-          html += "<tr><td>" + horario + "</td><td>" + mensagem + "</td><td>" + status + "</td></tr>";
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, file);
+        file.close();
+
+        if (error) {
+          html += "<tr><td colspan='3'>Erro ao ler JSON: ";
+          html += error.c_str();
+          html += "</td></tr>";
+        } else {
+          JsonArray arr = doc.as<JsonArray>();
+
+          // Verifica se o parâmetro 'log' foi enviado
+          String filtro = "";
+          if (req->hasParam("log")) {
+            filtro = req->getParam("log")->value();
+          }
+
+          // Itera sobre o array em ordem reversa (mais recente primeiro)
+          for (int i = arr.size() - 1; i >= 0; i--) {
+            JsonObject obj = arr[i];
+            String horario = obj["timestamp"] | "N/A";
+            String mensagem = obj["message"] | "N/A";  
+            String status = obj["status"] | "N/A";
+
+            // Aplica o filtro se houver
+            if (filtro == "" || mensagem.indexOf(filtro) != -1) {
+              html += "<tr><td>" + horario + "</td><td>" + mensagem + "</td><td>" + status + "</td></tr>";
+            }
+          }
         }
       }
     }
@@ -45,7 +77,6 @@ void indexPage() {
     req->send(200, "text/html", html);
   });
 }
-
 
 
 
@@ -119,4 +150,44 @@ void settimePage(){
           req->send(200, "text/html", html);
         }
       });
+}
+
+// Função para limpar todos os logs em SPIFFS
+
+// Implementação no arquivo functions.cpp
+void clearAllLogs() {
+  // Abre o arquivo e reescreve com um array vazio
+  File file = SPIFFS.open("/logs.json", FILE_WRITE);
+  if (file) {
+    file.print("[]");
+    file.close();
+    Serial.println("Arquivo de logs foi limpo com sucesso.");
+  } else {
+    Serial.println("Erro ao abrir o arquivo para limpá-lo!");
+  }
+}
+
+// Adicionar à página web em pages.cpp a função que cria o botão para limpar logs
+void clearLogsPage() {
+  server.on("/clear_logs", HTTP_GET, [](AsyncWebServerRequest* req) {
+    clearAllLogs();
+    req->redirect("/");
+  });
+
+  // Adicionar ao menu de navegação
+  server.on("/clear", HTTP_GET, [](AsyncWebServerRequest* req) {
+    String html = "<!DOCTYPE html><html><head><title>Limpar Logs</title>"
+                  "<style>body{font-family:sans-serif;padding:20px;text-align:center;} "
+                  ".button{background-color:#f44336;color:white;padding:15px 32px;text-align:center;"
+                  "text-decoration:none;display:inline-block;font-size:16px;margin:10px;cursor:pointer;border:none;border-radius:4px;}"
+                  ".button:hover{background-color:#d32f2f;}"
+                  "</style>"
+                  "</head><body>"
+                  "<h2>Limpar todos os logs</h2>"
+                  "<p>Esta ação irá remover todos os registros permanentemente.</p>"
+                  "<p><a href='/clear_logs' class='button'>Limpar Todos os Logs</a></p>"
+                  "<p><a href='/'>Voltar</a></p>"
+                  "</body></html>";
+    req->send(200, "text/html", html);
+  });
 }
